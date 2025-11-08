@@ -1,59 +1,518 @@
-# Examen
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Consumo de APIs</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+            color: var(--dark-color);
+            position: relative;
+        }
+        
+        .step.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            width: 20px;
+            height: 2px;
+            background-color: var(--light-color);
+        }
+        
+        .form-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .date-selector {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .date-selector select {
+            flex: 1;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-next {
+            float: right;
+        }
+        
+        .api-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .api-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+        
+        .api-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .api-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .api-content {
+            padding: 1.5rem;
+        }
+        
+        .api-content img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--dark-color);
+        }
+        
+        .error {
+            color: var(--accent-color);
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: var(--dark-color);
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .api-results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Sistema de Consumo de APIs</h1>
+            <p class="subtitle">Explora datos de múltiples fuentes públicas</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="progress-bar">
+            <div class="step active">1</div>
+            <div class="step">2</div>
+            <div class="step">3</div>
+        </div>
+        
+        <section class="form-section">
+            <h2 class="form-title">Información Personal</h2>
+            <form id="personal-info-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">Nombre</label>
+                        <input type="text" id="firstName" placeholder="Ingresa tu nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Apellido</label>
+                        <input type="text" id="lastName" placeholder="Ingresa tu apellido" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input type="tel" id="phone" placeholder="Ingresa tu teléfono" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico</label>
+                        <input type="email" id="email" placeholder="Ingresa tu correo electrónico" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Fecha de Nacimiento</label>
+                        <div class="date-selector">
+                            <select id="day">
+                                <option value="" disabled selected>Día</option>
+                                <!-- Días del 1 al 31 -->
+                            </select>
+                            <select id="month">
+                                <option value="" disabled selected>Mes</option>
+                                <!-- Meses -->
+                            </select>
+                            <select id="year">
+                                <option value="" disabled selected>Año</option>
+                                <!-- Años desde 1920 hasta 2020 -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="address">Dirección</label>
+                        <input type="text" id="address" placeholder="Ingresa tu dirección" required>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-next" id="next-btn">Siguiente</button>
+            </form>
+        </section>
+        
+        <section class="form-section" id="api-results-section" style="display: none;">
+            <h2 class="form-title">Resultados de APIs</h2>
+            <div class="api-results" id="api-results">
+                <!-- Los resultados de las APIs se cargarán aquí -->
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Sistema desarrollado para consumo de APIs públicas y gratuitas</p>
+        </div>
+    </footer>
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9.
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+    <script>
+        // Llenar selectores de fecha
+        document.addEventListener('DOMContentLoaded', function() {
+            // Llenar días (1-31)
+            const daySelect = document.getElementById('day');
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+            
+            // Llenar meses
+            const monthSelect = document.getElementById('month');
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+            
+            // Llenar años (1920-2020)
+            const yearSelect = document.getElementById('year');
+            for (let i = 2020; i >= 1920; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+            
+            // Configurar botón siguiente
+            document.getElementById('next-btn').addEventListener('click', function() {
+                // Validar formulario
+                const form = document.getElementById('personal-info-form');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                // Cambiar paso activo
+                document.querySelectorAll('.step')[0].classList.remove('active');
+                document.querySelectorAll('.step')[1].classList.add('active');
+                
+                // Ocultar formulario y mostrar resultados de APIs
+                document.querySelector('.form-section').style.display = 'none';
+                document.getElementById('api-results-section').style.display = 'block';
+                
+                // Cargar datos de las APIs
+                loadAPIData();
+            });
+        });
+        
+        // Función para cargar datos de las APIs
+        async function loadAPIData() {
+            const apiResults = document.getElementById('api-results');
+            apiResults.innerHTML = '<div class="loading">Cargando datos de APIs...</div>';
+            
+            try {
+                // 1. JSONPlaceholder - Usuarios
+                const usersResponse = await fetch('https://jsonplaceholder.typicode.com/users/1');
+                const user = await usersResponse.json();
+                
+                // 2. JSONPlaceholder - Posts
+                const postsResponse = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+                const post = await postsResponse.json();
+                
+                // 3. JSONPlaceholder - Comentarios
+                const commentsResponse = await fetch('https://jsonplaceholder.typicode.com/comments/1');
+                const comment = await commentsResponse.json();
+                
+                // 4. OpenWeatherMap (usando una API alternativa ya que OpenWeatherMap requiere clave)
+                // En su lugar usaremos una API de clima pública alternativa
+                const weatherResponse = await fetch('https://api.open-meteo.com/v1/forecast?latitude=19.43&longitude=-99.13&current_weather=true');
+                const weather = await weatherResponse.json();
+                
+                // 5. REST Countries
+                const countriesResponse = await fetch('https://restcountries.com/v3.1/name/mexico');
+                const country = await countriesResponse.json();
+                
+                // 6. Dog CEO
+                const dogResponse = await fetch('https://dog.ceo/api/breeds/image/random');
+                const dog = await dogResponse.json();
+                
+                // 7. Cat Facts
+                const catResponse = await fetch('https://catfact.ninja/fact');
+                const cat = await catResponse.json();
+                
+                // 8. CoinGecko
+                const cryptoResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const crypto = await cryptoResponse.json();
+                
+                // 9. TheMealDB
+                const mealResponse = await fetch('https://www.themealdb.com/api/json/v1/1/random.php');
+                const meal = await mealResponse.json();
+                
+                // Mostrar resultados
+                apiResults.innerHTML = `
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Información de Usuario</h3>
+                        </div>
+                        <div class="api-content">
+                            <p><strong>Nombre:</strong> ${user.name}</p>
+                            <p><strong>Email:</strong> ${user.email}</p>
+                            <p><strong>Teléfono:</strong> ${user.phone}</p>
+                            <p><strong>Ciudad:</strong> ${user.address.city}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Publicación de Ejemplo</h3>
+                        </div>
+                        <div class="api-content">
+                            <p><strong>Título:</strong> ${post.title}</p>
+                            <p><strong>Contenido:</strong> ${post.body.substring(0, 100)}...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Comentario</h3>
+                        </div>
+                        <div class="api-content">
+                            <p><strong>Nombre:</strong> ${comment.name}</p>
+                            <p><strong>Email:</strong> ${comment.email}</p>
+                            <p><strong>Comentario:</strong> ${comment.body.substring(0, 100)}...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Información del Clima</h3>
+                        </div>
+                        <div class="api-content">
+                            <p><strong>Temperatura:</strong> ${weather.current_weather.temperature}°C</p>
+                            <p><strong>Viento:</strong> ${weather.current_weather.windspeed} km/h</p>
+                            <p><strong>Dirección del viento:</strong> ${weather.current_weather.winddirection}°</p>
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Información de País</h3>
+                        </div>
+                        <div class="api-content">
+                            <p><strong>País:</strong> ${country[0].name.common}</p>
+                            <p><strong>Capital:</strong> ${country[0].capital[0]}</p>
+                            <p><strong>Población:</strong> ${country[0].population.toLocaleString()}</p>
+                            <p><strong>Región:</strong> ${country[0].region}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Imagen de Perro Aleatorio</h3>
+                        </div>
+                        <div class="api-content">
+                            <img src="${dog.message}" alt="Perro aleatorio">
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Dato sobre Gatos</h3>
+                        </div>
+                        <div class="api-content">
+                            <p>${cat.fact}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Precio de Bitcoin</h3>
+                        </div>
+                        <div class="api-content">
+                            <p><strong>Precio actual:</strong> $${crypto.bitcoin.usd.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="api-card">
+                        <div class="api-header">
+                            <h3>Receta Aleatoria</h3>
+                        </div>
+                        <div class="api-content">
+                            <p><strong>Platillo:</strong> ${meal.meals[0].strMeal}</p>
+                            <p><strong>Categoría:</strong> ${meal.meals[0].strCategory}</p>
+                            <p><strong>Área:</strong> ${meal.meals[0].strArea}</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error al cargar datos de APIs:', error);
+                apiResults.innerHTML = '<div class="error">Error al cargar los datos. Por favor, intenta nuevamente.</div>';
+            }
+        }
+    </script>
+</body>
+</html>
